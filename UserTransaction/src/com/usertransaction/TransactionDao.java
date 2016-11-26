@@ -82,9 +82,9 @@ public class TransactionDao {
 			   }
 		   }
 		   
-		   return "FAIL";
-	   } else {
 		   return "NO TRANSACTION";
+	   } else {
+		   return "NO TRANSACTION LIST";
 	   }
    }
    

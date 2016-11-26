@@ -13,45 +13,80 @@ public class TestData {
 
 	private Client client;
 	private String REST_SERVICE_URL = "http://localhost:8080/UserTransaction/rest/UserTransactionService/";
-	private static final String SUCCESS_RESULT="<result>success</result>";
-	private static final String PASS = "pass";
-	private static final String FAIL = "fail";
+
 	
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		TestData test = new TestData();
 		test.init();
-		test.testGetAllTransactions();
-//		test.deleteTransaction();
-//		test.addNewTransaction();
-//		test.testGetAllTransactions();
-		test.getOneTransaction();
-		test.updateTransaction();
+		test.getAllTransactions();
+		
+		Form new1 = new Form();
+		new1.param("amount", "500.0");
+		new1.param("currency", "USD");
+		new1.param("merchant", "TestMerchant");
+		test.addNewTransaction(new1);
+		
+		Form new2 = new Form();
+		new2.param("amount", "5000.0");
+		new2.param("currency", "EUR");
+		new2.param("merchant", "AnotherMerchant");
+		new2.param("description", "Forza Ferrari");
+		test.addNewTransaction(new2);
+		
+		test.getAllTransactions();
+		
+		Form update1 = new Form();
+		update1.param("id", "2");
+		update1.param("currency", "IDR");
+		update1.param("amount", "5000000");
+		update1.param("merchant", "TestMerchant");
+		
+		test.updateTransaction(update1);
+		
+		test.getAllTransactions();
+		
+		Form update2 = new Form();
+		update2.param("id", "5");
+		update2.param("currency", "IDR");
+		update2.param("amount", "5000000");
+		update2.param("merchant", "TestMerchant");
+
+		test.updateTransaction(update2);
+		
+		test.getAllTransactions();
+		
+		test.getOneTransaction(3);
+
+		test.deleteTransaction(3);
+		
+		test.getAllTransactions();
+		
 	}
 
 	private void init(){
 	      this.client = ClientBuilder.newClient();
 	}
 	
-	private void testGetAllTransactions(){
+	private void getAllTransactions(){
       GenericType<List<UserTransaction>> list = new GenericType<List<UserTransaction>>() {};
       List<UserTransaction> transactions = client
          .target(REST_SERVICE_URL)
          .path("transaction")
          .request(MediaType.APPLICATION_XML)
          .get(list);
-      String result = PASS;
-      if(transactions.isEmpty()){
-         result = FAIL;
+
+      if(transactions == null){
+          System.out.println("All Transactions " + transactions + "\n");
+      } else {
+    	  System.out.println("All Transactions");
+    	  for(UserTransaction t : transactions){
+    		  t.printData();
+    	  }
       }
-      System.out.println("Test case name: testGetAllTransactions, Result: " + transactions);
 	}
 	
-		private void addNewTransaction(){
-			Form form = new Form();
-			form.param("amount", "500.0");
-			form.param("currency", "USD");
-			form.param("merchant", "TestMerchant");
+		private void addNewTransaction(Form form){
 			
 			String callResult = client
 			         .target(REST_SERVICE_URL)
@@ -62,37 +97,43 @@ public class TestData {
 			            String.class);
 		
 		
-		      System.out.println("Test case name: addNewTransaction (POST), Result: " + callResult );
+		      System.out.println("Adding transaction " + callResult + "\n");
 		  }
 	
-		private void deleteTransaction(){
-			String result = client.target(REST_SERVICE_URL).path("transaction/{transactionID}").resolveTemplate("transactionID", 7)
+		private void deleteTransaction(int id){
+			String result = client.target(REST_SERVICE_URL).path("transaction/{transactionID}").resolveTemplate("transactionID", id)
 					.request(MediaType.APPLICATION_XML).delete(String.class);
-			System.out.println("Test case name: deleteTransaction, Result: " + result);
+			System.out.println("Delete transaction " + id + " " + result + "\n");
 
 		}
 		
-		private void getOneTransaction(){
+		private void getOneTransaction(int id){
 			UserTransaction result = null;
 					
-			result = client.target(REST_SERVICE_URL).path("transaction/{transactionID}").resolveTemplate("transactionID", 5)
+			result = client.target(REST_SERVICE_URL).path("transaction/{transactionID}").resolveTemplate("transactionID", id)
 					.request(MediaType.APPLICATION_XML).get(UserTransaction.class);
 			
-			System.out.println("Test case name: getOneTransaction, Result: " + result);
+			if(result == null){
+				System.out.println("No Transaction with ID " + id + "\n");
+			} else {
+				System.out.println("Get Transaction \n");
+				result.printData();
+			}
+			
 		}
 		
-		private void updateTransaction(){
-			Form form = new Form();
-			form.param("id", "5");
-//			form.param("currency", "IDR");
-			form.param("amount", "5000000");
-			form.param("merchant", "TestMerchant");
+		private void updateTransaction(Form form){
 			
 			UserTransaction result = null;
 			result = client.target(REST_SERVICE_URL).path("update").request(MediaType.APPLICATION_XML)
 					.post(Entity.entity(form,MediaType.APPLICATION_FORM_URLENCODED), UserTransaction.class);
 			
-			System.out.println("Test case name: updateTransaction, Result: " + result.getCurrencyCode());
+			if(result == null){
+				System.out.println("Update Transaction : Transaction Not Updated \n");
+			} else {
+				System.out.println("Transaction Updated");
+				result.printData();
+			}
 			
 		}
 	}

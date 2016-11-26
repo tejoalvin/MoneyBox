@@ -111,5 +111,16 @@ public class UserTransaction implements Serializable {
 		this.merchant = merchant;
 	}
 
+	public void printData(){
+		System.out.println("Transaction ID: " + this.transactionID);
+		System.out.println("Merchant: " + this.merchant);
+		System.out.println("Amount: " + this.transactionAmount);
+		System.out.println("Currency: " + this.currencyCode);
+		System.out.println("transactionDate: " + this.transactionDate.toString());
+		System.out.println("Created Date: " + this.createdDate.toString());
+		System.out.println("Modified Date: " + this.modifiedDate.toString());
+		System.out.println("Description: " + this.desc);
+		System.out.println("");
+	}
 	
 }
